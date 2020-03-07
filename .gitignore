@@ -3,6 +3,7 @@
 #
 .image_cache
 test_results
+node_modules
 
 # Created by .ignore support plugin (hsz.mobi)
 ### Python template

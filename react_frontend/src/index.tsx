@@ -5,8 +5,7 @@ import { App } from './App';
 
 declare var module;
 
-import('../static/config.json').then(() => {
-  fetch('/static/config.json'
+fetch('/config.json'
   ).then(async (response) => {
     const config = await response.json();
     ReactDOM.render(
@@ -14,7 +13,7 @@ import('../static/config.json').then(() => {
       document.getElementById('root')
     );
   });
-})
+
 
 if (module.hot) {
   module.hot.accept();

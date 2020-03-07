@@ -1,0 +1,19 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ApiResult renders 1`] = `
+<div>
+  <h2>
+    API Results
+  </h2>
+  <ul>
+    <li>
+      <span>
+        Hello Message: 
+      </span>
+      <span>
+        No message received
+      </span>
+    </li>
+  </ul>
+</div>
+`;

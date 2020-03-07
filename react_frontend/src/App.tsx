@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useState, useEffect } from "react";
 import { ApiResults } from "./ApiResults";
-import * as axios from "axios";
+import axios from "axios";
 
 interface State {
     helloMessage?: string;
@@ -20,8 +20,8 @@ export const App = ({apiUrl}) => {
 
     useEffect(() => {
         setTimeout(async () => {
+            let data = {};
             try {
-                let data = {}; 
                 const message = await axios(`${apiUrl}`);
                 if(message.data) {
                     data = {
@@ -30,10 +30,11 @@ export const App = ({apiUrl}) => {
                     }
                 }
             }
-            catch {
+            catch(err) {
+                console.error(err);
             }
             finally {
-                setState({ loading: false });
+                setState({ ...data, loading: false });
             }
         }, 5000);
     })

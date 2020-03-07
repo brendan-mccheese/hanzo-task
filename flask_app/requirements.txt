@@ -3,3 +3,4 @@ pytest
 gunicorn
 unittest-xml-reporting
 pylint
+flask-cors

@@ -10,4 +10,12 @@ services:
       REDIS_HOST: moo
       REDIS_PORT: 1234
     ports:
-      - 5050:8000
+      - 8000:8000
+
+  react-frontend:
+    build:
+      context: ./react_frontend
+    environment:
+      API_URL: http://localhost:8000
+    ports:
+      - 8080:1234

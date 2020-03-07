@@ -1,11 +1,11 @@
 import * as React from "react";
 
 interface ApiResultsProps {
-    readonly helloMessage: string;
-    readonly postgresConn: string;
-    readonly redisConn: any;
+    readonly helloMessage?: string;
+    readonly postgresConn?: string;
+    readonly redisConn?: any;
 }
-export const ApiResults = ({helloMessage, postgresConn, redisConn}) => (
+export const ApiResults = ({helloMessage, postgresConn, redisConn}: ApiResultsProps) => (
     <div>
         <h2>API Results</h2>
         <ul>
