@@ -51,7 +51,7 @@ jobs:
                 command: python3 -m pylint api/simple_flask_app.py
             - run:
                 name: Run tests
-                command: python3 -m xmlrunner api/simple_flask_app_test.py
+                command: python3 -m xmlrunner api/simple_flask_app_test.py -o test_results
             - store_test_results:
                 path: test_results
             
