@@ -2,7 +2,9 @@
 
 exports[`ApiResult renders 1`] = `
 <div>
-  <h2>
+  <h2
+    data-e2e-id="api-title"
+  >
     API Results
   </h2>
   <ul>
