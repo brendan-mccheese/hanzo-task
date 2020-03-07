@@ -107,7 +107,7 @@ jobs:
             - checkout:
                 path: ~/repo
             - attach_workspace:
-                at: ~/repo/.image_cache
+                at: ~/repo
             - run:
                 name: Load cached images
                 command: ./load_cached_images.sh
