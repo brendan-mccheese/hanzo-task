@@ -1,3 +1,4 @@
+# Simple compose file for local image testing
 version: "3"
 
 services:

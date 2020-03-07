@@ -1,0 +1,73 @@
+#
+# CircleCI configuration file
+#
+version: 2.1
+
+#
+# Common vars
+#
+var_docker_default: &default_docker
+    docker:
+        - image: circleci/python:3.8-buster
+
+#
+# Job definitions
+#
+jobs:
+    # Build and cache flask app docker image
+    build-flask-app:
+        <<: *default_docker
+        working_directory: ~/repo
+        steps:
+            - checkout:
+                path: ~/repo
+            - setup_remote_docker
+            - run:
+                name: Build docker image
+                command: |
+                    cd ~/repo/.scripts
+                    ./build_docker_image.sh
+            - run:
+                name: Cache docker image
+                command: |
+                    cd ~/repo/.scripts
+                    ./cache_docker_image.sh
+            # Persist image tar for later use, only push when tests have passed
+            - persist_to_workspace:
+                root: ~/repo
+                paths:
+                    - .image_cache
+    # Test flask app code
+    test-flask-app:
+        <<: *default_docker
+        working_directory: ~/repo/flask_app
+        steps:
+            - checkout:
+                path: ~/repo
+            - run:
+                name: Install dependencies
+                command: python3 -m pip install -r requirements.txt
+            - run:
+                name: Run pylint
+                command: python3 -m pylint api/simple_flask_app.py
+            - run:
+                name: Run tests
+                command: python3 -m xmlrunner api/simple_flask_app_test.py -o test_results
+            # Store results to trigger failures and as artifact for debugging purposes
+            - store_test_results:
+                path: test_results
+            - store_artifacts:
+                path: test_results
+            
+#
+# Workflows
+#
+workflows:
+    version: 2
+    build-test-deploy-flask-app:
+        jobs:
+            - build-flask-app
+            - test-flask-app:
+                # Test after successful build
+                requires:
+                    - build-flask-app
