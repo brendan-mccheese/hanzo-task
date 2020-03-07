@@ -42,13 +42,17 @@ jobs:
         working_directory: ~/repo
         steps:
             - checkout:
-                path: ~/repo
+                path: ~/repo/flask_app
+            - run:
+                name: Install dependencies
+                command: python3 -m pip install -r requirements.txt
             - run:
                 name: Run pylint
-                command: |
-                    cd ~/repo/flask_app
-                    python3 -m pip install -r requirements.txt
-                    python3 -m pylint api/simple_flask_app.py
+                command: python3 -m pylint api/simple_flask_app.py
+            - run:
+                name: Run tests
+                command: python3 -m xmlrunner api/simple_flask_app_test.py
+            
 #
 # Workflows
 #

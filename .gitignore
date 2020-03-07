@@ -2,6 +2,7 @@
 # Repo specific ignores
 #
 .image_cache
+test_results
 
 # Created by .ignore support plugin (hsz.mobi)
 ### Python template
