@@ -26,7 +26,15 @@ jobs:
                 command: |
                     cd ~/repo/.scripts
                     ./build_docker_image.sh
-
+            - run:
+                name: Cache docker image
+                command: |
+                    cd ~/repo/.scripts
+                    ./cache_docker_image.sh
+            - persist_to_workspace:
+                root: ~/repo
+                paths:
+                    - .image_cache
 #
 # Workflows
 #
