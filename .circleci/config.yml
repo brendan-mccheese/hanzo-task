@@ -108,9 +108,17 @@ jobs:
                 path: ~/repo
             - attach_workspace:
                 at: ~/repo
+            - setup_remote_docker
             - run:
                 name: Load cached images
                 command: ./load_cached_images.sh
+            - run:
+                name: Run full stack e2e tests
+                command: ./run_full_stack_e2e.sh
+            - store_test_results:
+                path: ~/repo/e2e-results/junit
+            - store_artifacts:
+                path: ~/repo/e2e-results
 #
 # Workflows
 #
