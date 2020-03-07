@@ -1,10 +1,9 @@
-#
-# Simple flask app that unsafely returns secret information.
-#
+"""Simple Flask API"""
 
-from . import environment
 from flask import Flask
+from . import environment
 
+# pylint: disable=C0103
 app = Flask(__name__)
 
 
@@ -24,3 +23,4 @@ def hello_postgres():
 def hello_redis():
     """Unsafely returns redis connection details"""
     return environment.get_redis_connection_dict()
+    
