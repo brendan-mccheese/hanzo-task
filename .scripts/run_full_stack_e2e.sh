@@ -9,7 +9,8 @@ docker-compose -f ./docker-compose.e2e.yml down
 
 # Run e2e with compose
 echo "Running e2e tests"
-docker-compose -f ./docker-compose.e2e.yml up -d --build
+docker-compose -f ./docker-compose.e2e.yml build hanzo-cypress-tests # Only build tests, the rest come from the cache
+docker-compose -f ./docker-compose.e2e.yml up -d --no-build
 sleep 2
 docker logs hanzo-cypress-tests --follow &
 run_result=$(docker wait hanzo-cypress-tests)

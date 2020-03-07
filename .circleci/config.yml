@@ -119,6 +119,8 @@ jobs:
                 path: ~/repo/e2e-results/junit
             - store_artifacts:
                 path: ~/repo/e2e-results
+            - store_artifacts:
+                path: ~/repo/e2e-logs
 #
 # Workflows
 #
