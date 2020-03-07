@@ -89,7 +89,7 @@ jobs:
                 path: ~/repo
             - run:
                 name: Install dependencies
-                command: yarn install --frozen-lockfile
+                command: yarn install
             - run:
                 name: Run tests
                 command: yarn test --reporters=default --reporters=jest-junit --maxWorkers=1
