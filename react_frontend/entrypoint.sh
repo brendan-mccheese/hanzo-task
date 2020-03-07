@@ -7,7 +7,7 @@ if [ -n "$API_URL" ]; then
 {
     "apiUrl": "'"$API_URL"'"
 }
-    ' > ./config.json
+    ' > ./static/config.json
 fi
 
 #

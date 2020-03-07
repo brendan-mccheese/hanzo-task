@@ -95,6 +95,7 @@ jobs:
                 command: yarn test --reporters=default --reporters=jest-junit --maxWorkers=1
                 environment:
                     JEST_JUNIT_OUTPUT: /home/circleci/repo/test-results/jest.tests.xml
+            # Store results to trigger failures and as artifact for debugging purposes
             - store_test_results:
                 path: test-results
             - store_artifacts:
@@ -115,6 +116,7 @@ jobs:
             - run:
                 name: Run full stack e2e tests
                 command: ./run_full_stack_e2e.sh
+            # Store results to trigger failures and as artifact for debugging purposes
             - store_test_results:
                 path: ~/repo/e2e-results/junit
             - store_artifacts:
@@ -139,6 +141,7 @@ workflows:
                 requires:
                     - build-react-app
             - full-e2e-tests:
+                # Full stack tests require previous jobs to have been completed
                 requires:
                     - test-flask-app
                     - test-react-app

@@ -1,7 +1,17 @@
 # E2E compose file
+# Notes: Runs all tests inside docker so CI build images can be
+#        reused. Testing against images means that the code making it
+#        to production is what is being tested.
 version: "3"
 
 services:
+
+  #
+  # If the flask app actually required postgres and redis
+  # they could be wired in here.
+  #
+
+  # Compose flask app
   hanzo-flask-app:
     build:
       context: ./flask_app
@@ -11,6 +21,7 @@ services:
       REDIS_HOST: moo
       REDIS_PORT: 1234
 
+  # Compose react app
   hanzo-react-frontend:
     build:
       context: ./react_frontend
@@ -18,6 +29,7 @@ services:
     environment:
       API_URL: http://hanzo-flask-app:8000
   
+  # Compose e2e tests
   hanzo-cypress-tests:
     container_name: hanzo-cypress-tests
     build:
