@@ -99,6 +99,18 @@ jobs:
                 path: test-results
             - store_artifacts:
                 path: test-results
+    # Full end to end tests
+    full-e2e-tests:
+        <<: *default_docker
+        working_directory: ~/repo/.scripts
+        steps:
+            - checkout:
+                path: ~/repo
+            - attach_workspace:
+                at: ~/repo/.image_cache
+            - run:
+                name: Load cached images
+                command: ./load_cached_images.sh
 #
 # Workflows
 #
@@ -116,3 +128,7 @@ workflows:
                 # Test after successful build
                 requires:
                     - build-react-app
+            - full-e2e-tests:
+                requires:
+                    - test-flask-app
+                    - test-react-app
