@@ -80,7 +80,25 @@ jobs:
                 path: test_results
             - store_artifacts:
                 path: test_results
-            
+    # Test react app code
+    test-react-app:
+        <<: *default_docker
+        working_directory: ~/repo/react_frontend
+        steps:
+            - checkout:
+                path: ~/repo
+            - run:
+                name: Install dependencies
+                command: yarn install --frozen-lockfile
+            - run:
+                name: Run tests
+                command: yarn test --reporters=default --reporters=jest-junit --maxWorkers=1
+                environment:
+                    JEST_JUNIT_OUTPUT: /home/circleci/repo/test-results/jest.tests.xml
+            - store_test_results:
+                path: test-results
+            - store_artifacts:
+                path: test-results
 #
 # Workflows
 #
@@ -94,3 +112,7 @@ workflows:
                 # Test after successful build
                 requires:
                     - build-flask-app
+            - test-react-app:
+                # Test after successful build
+                requires:
+                    - build-react-app
