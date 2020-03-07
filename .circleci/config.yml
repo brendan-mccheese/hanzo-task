@@ -39,10 +39,10 @@ jobs:
     # Test flask app code
     test-flask-app:
         <<: *default_docker
-        working_directory: ~/repo
+        working_directory: ~/repo/flask_app
         steps:
             - checkout:
-                path: ~/repo/flask_app
+                path: ~/repo
             - run:
                 name: Install dependencies
                 command: python3 -m pip install -r requirements.txt
