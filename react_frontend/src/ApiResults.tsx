@@ -7,7 +7,7 @@ interface ApiResultsProps {
 }
 export const ApiResults = ({helloMessage, postgresConn, redisConn}: ApiResultsProps) => (
     <div>
-        <h2>API Results</h2>
+        <h2 data-e2e-id="api-title">API Results</h2>
         <ul>
             <li>
                 <span>Hello Message: </span>

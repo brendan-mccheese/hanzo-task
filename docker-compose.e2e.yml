@@ -1,0 +1,29 @@
+# E2E compose file
+version: "3"
+
+services:
+  hanzo-flask-app:
+    build:
+      context: ./flask_app
+    environment:
+      POSTGRES_CONNECTION_STRING: postgres://foo:1234
+      REDIS_HOST: moo
+      REDIS_PORT: 1234
+
+  hanzo-react-frontend:
+    build:
+      context: ./react_frontend
+    environment:
+      API_URL: http://hanzo-flask-app:8000
+  
+  hanzo-cypress-tests:
+    container_name: hanzo-cypress-tests
+    build:
+      context: ./cypress_e2e
+    environment: 
+      TERM: xterm
+      CYPRESS_APP_URL: http://hanzo-react-frontend:1234
+      CYPRESS_API_URL: http://hanzo-flask-app:8000
+    depends_on: 
+      - hanzo-flask-app
+      - hanzo-react-frontend

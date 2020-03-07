@@ -8,7 +8,7 @@ version: 2.1
 #
 var_docker_default: &default_docker
     docker:
-        - image: circleci/python:3.8-buster
+        - image: circleci/python:3-node
 
 #
 # Job definitions
@@ -26,12 +26,34 @@ jobs:
                 name: Build docker image
                 command: |
                     cd ~/repo/.scripts
-                    ./build_docker_image.sh
+                    ./build_flask_docker_image.sh
             - run:
                 name: Cache docker image
                 command: |
                     cd ~/repo/.scripts
-                    ./cache_docker_image.sh
+                    ./cache_flask_docker_image.sh
+            # Persist image tar for later use, only push when tests have passed
+            - persist_to_workspace:
+                root: ~/repo
+                paths:
+                    - .image_cache
+    build-react-app:
+        <<: *default_docker
+        working_directory: ~/repo
+        steps:
+            - checkout:
+                path: ~/repo
+            - setup_remote_docker
+            - run:
+                name: Build docker image
+                command: |
+                    cd ~/repo/.scripts
+                    ./build_react_docker_image.sh
+            - run:
+                name: Cache docker image
+                command: |
+                    cd ~/repo/.scripts
+                    ./cache_react_docker_image.sh
             # Persist image tar for later use, only push when tests have passed
             - persist_to_workspace:
                 root: ~/repo
@@ -64,9 +86,10 @@ jobs:
 #
 workflows:
     version: 2
-    build-test-deploy-flask-app:
+    build-test-deploy:
         jobs:
             - build-flask-app
+            - build-react-app
             - test-flask-app:
                 # Test after successful build
                 requires:
