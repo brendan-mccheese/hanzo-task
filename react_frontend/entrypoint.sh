@@ -3,11 +3,11 @@
 set -oe
 
 if [ -n "$API_URL" ]; then
-    echo `
-        {
-            "apiUrl": "'"$API_URL"'"
-        }
-    ` > ./config.json
+    echo '
+{
+    "apiUrl": "'"$API_URL"'"
+}
+    ' > ./config.json
 fi
 
 #
