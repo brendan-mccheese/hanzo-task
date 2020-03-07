@@ -1,0 +1,12 @@
+version: "3"
+
+services:
+  flask-app:
+    build:
+      context: ./flask_app
+    environment:
+      POSTGRES_CONNECTION_STRING: postgres://foo:1234
+      REDIS_HOST: moo
+      REDIS_PORT: 1234
+    ports:
+      - 5050:8000
