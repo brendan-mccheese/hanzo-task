@@ -14,6 +14,7 @@ var_docker_default: &default_docker
 # Job definitions
 #
 jobs:
+    # Build and cache flask app docker image
     build-flask-app:
         <<: *default_docker
         working_directory: ~/repo
@@ -35,6 +36,19 @@ jobs:
                 root: ~/repo
                 paths:
                     - .image_cache
+    # Test flask app code
+    test-flask-app:
+        <<: *default_docker
+        working_directory: ~/repo
+        steps:
+            - checkout:
+                path: ~/repo
+            - run:
+                name: Run pylint
+                command: |
+                    cd ~/repo/flask_app
+                    python3 -m pip install -r requirements.txt
+                    python3 -m pylint api/simple_flask_app.py
 #
 # Workflows
 #
@@ -43,3 +57,6 @@ workflows:
     build-test-deploy-flask-app:
         jobs:
             - build-flask-app
+            - test-flask-app:
+                requires:
+                    - build-flask-app
