@@ -10,6 +10,11 @@ var_docker_default: &default_docker
     docker:
         - image: circleci/python:3-node
 
+var_master_only: &master_only
+    filters:
+        branches:
+            only: /^master$/
+
 #
 # Job definitions
 #
@@ -205,35 +210,45 @@ workflows:
                     - test-flask-app
                     - test-react-app
             - push-docker-images:
-                # Push docker images after e2e tests have passed
+                # Push docker images after e2e tests have passed and only on master
                 requires:
                     - full-e2e-tests
+                <<: *master_only
+            # All approve and deploy steps require master build
             - approve-dev:
                 type: approval
                 requires:
                     - push-docker-images
+                <<: *master_only
             - deploy-to-dev:
                 requires:
                     - approve-dev
+                <<: *master_only
             - approve-uat:
                 type: approval
                 requires:
                     - deploy-to-dev
+                <<: *master_only
             - deploy-to-uat:
                 requires:
                     - approve-uat
+                <<: *master_only
             - approve-staging:
                 type: approval
                 requires:
                     - deploy-to-uat
+                <<: *master_only
             - deploy-to-staging:
                 requires:
                     - approve-staging
+                <<: *master_only
             - approve-production:
                 type: approval
                 requires:
                     - deploy-to-staging
+                <<: *master_only
             - deploy-to-production:
                 requires:
                     - approve-production
+                <<: *master_only
             
