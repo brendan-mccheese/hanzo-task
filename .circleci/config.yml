@@ -138,10 +138,50 @@ jobs:
                 command: ./load_cached_images.sh
             - run:
                 name: Push flask app image
-                command: ./push_docker_image.sh --base-image "brendalfly/hanzo_flask_app:latest" --target-image "brendalfly/hanzo_flask_app:latest"
+                command: |
+                    ./push_docker_image.sh --base-image "brendalfly/hanzo_flask_app:latest" --target-image "brendalfly/hanzo_flask_app:latest"
+                    ./push_docker_image.sh --base-image "brendalfly/hanzo_flask_app:latest" --target-image "brendalfly/hanzo_flask_app:$CIRCLE_SHA1"
             - run:
                 name: Push react app image
-                command: ./push_docker_image.sh --base-image "brendalfly/hanzo_react_app:latest" --target-image "brendalfly/hanzo_react_app:latest"
+                command: |
+                    ./push_docker_image.sh --base-image "brendalfly/hanzo_react_app:latest" --target-image "brendalfly/hanzo_react_app:latest"
+                    ./push_docker_image.sh --base-image "brendalfly/hanzo_react_app:latest" --target-image "brendalfly/hanzo_react_app:$CIRCLE_SHA1"
+    deploy-to-dev:
+        <<: *default_docker
+        working_directory: ~/repo/.scripts
+        steps:
+            - checkout:
+                path: ~/repo
+            - run:
+                name: Deploy to dev environment
+                command: ./deploy_to_environment.sh --environment dev --tag $CIRCLE_SHA1
+    deploy-to-uat:
+        <<: *default_docker
+        working_directory: ~/repo/.scripts
+        steps:
+            - checkout:
+                path: ~/repo
+            - run:
+                name: Deploy to UAT environment
+                command: ./deploy_to_environment.sh --environment uat --tag $CIRCLE_SHA1
+    deploy-to-staging:
+        <<: *default_docker
+        working_directory: ~/repo/.scripts
+        steps:
+            - checkout:
+                path: ~/repo
+            - run:
+                name: Deploy to staging environment
+                command: ./deploy_to_environment.sh --environment staging --tag $CIRCLE_SHA1
+    deploy-to-production:
+        <<: *default_docker
+        working_directory: ~/repo/.scripts
+        steps:
+            - checkout:
+                path: ~/repo
+            - run:
+                name: Deploy to production environment
+                command: ./deploy_to_environment.sh --environment production --tag $CIRCLE_SHA1
 #
 # Workflows
 #
@@ -168,3 +208,11 @@ workflows:
                 # Push docker images after e2e tests have passed
                 requires:
                     - full-e2e-tests
+            - approve-dev:
+                type: approval
+                requires:
+                    - push-docker-images
+            - deploy-to-dev:
+                requires:
+                    - approve-dev
+            
