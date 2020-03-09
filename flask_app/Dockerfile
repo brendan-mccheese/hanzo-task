@@ -1,5 +1,7 @@
+# Flask API docker file
+# Uses apline as base for smallest image
 FROM python:3-alpine
-LABEL maintainer="brendancheshire@gmail.com"
+LABEL maintainer="brendan-mccheese"
 LABEL purpose="Hanzo SRE task"
 
 WORKDIR /flask_app
