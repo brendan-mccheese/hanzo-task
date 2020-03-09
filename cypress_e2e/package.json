@@ -1,0 +1,13 @@
+{
+  "name": "cypress_e2e",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "cypress open",
+    "run-tests:ci": "cypress run --reporter junit --reporter-options 'mochaFile=cypress/junit/test-results.xml'"
+  },
+  "dependencies": {
+    "cypress": "^4.1.0"
+  }
+}

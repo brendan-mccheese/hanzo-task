@@ -1,10 +1,12 @@
 """Simple Flask API"""
 
 from flask import Flask
+from flask_cors import CORS
 from . import environment
 
 # pylint: disable=C0103
 app = Flask(__name__)
+CORS(app)
 
 
 @app.route('/')

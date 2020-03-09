@@ -1,0 +1,4 @@
+node_modules
+cypress/junit
+cypress/videos
+cypress/screenshots

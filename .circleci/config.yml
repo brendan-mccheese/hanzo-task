@@ -8,7 +8,12 @@ version: 2.1
 #
 var_docker_default: &default_docker
     docker:
-        - image: circleci/python:3.8-buster
+        - image: circleci/python:3-node
+
+var_master_only: &master_only
+    filters:
+        branches:
+            only: /^master$/
 
 #
 # Job definitions
@@ -26,12 +31,34 @@ jobs:
                 name: Build docker image
                 command: |
                     cd ~/repo/.scripts
-                    ./build_docker_image.sh
+                    ./build_flask_docker_image.sh
             - run:
                 name: Cache docker image
                 command: |
                     cd ~/repo/.scripts
-                    ./cache_docker_image.sh
+                    ./cache_flask_docker_image.sh
+            # Persist image tar for later use, only push when tests have passed
+            - persist_to_workspace:
+                root: ~/repo
+                paths:
+                    - .image_cache
+    build-react-app:
+        <<: *default_docker
+        working_directory: ~/repo
+        steps:
+            - checkout:
+                path: ~/repo
+            - setup_remote_docker
+            - run:
+                name: Build docker image
+                command: |
+                    cd ~/repo/.scripts
+                    ./build_react_docker_image.sh
+            - run:
+                name: Cache docker image
+                command: |
+                    cd ~/repo/.scripts
+                    ./cache_react_docker_image.sh
             # Persist image tar for later use, only push when tests have passed
             - persist_to_workspace:
                 root: ~/repo
@@ -58,16 +85,170 @@ jobs:
                 path: test_results
             - store_artifacts:
                 path: test_results
-            
+    # Test react app code
+    test-react-app:
+        <<: *default_docker
+        working_directory: ~/repo/react_frontend
+        steps:
+            - checkout:
+                path: ~/repo
+            - run:
+                name: Install dependencies
+                command: yarn install
+            - run:
+                name: Run tests
+                command: yarn test --reporters=default --reporters=jest-junit --maxWorkers=1
+                environment:
+                    JEST_JUNIT_OUTPUT: /home/circleci/repo/test-results/jest.tests.xml
+            # Store results to trigger failures and as artifact for debugging purposes
+            - store_test_results:
+                path: test-results
+            - store_artifacts:
+                path: test-results
+    # Full end to end tests
+    full-e2e-tests:
+        <<: *default_docker
+        working_directory: ~/repo/.scripts
+        steps:
+            - checkout:
+                path: ~/repo
+            - attach_workspace:
+                at: ~/repo
+            - setup_remote_docker
+            - run:
+                name: Load cached images
+                command: ./load_cached_images.sh
+            - run:
+                name: Run full stack e2e tests
+                command: ./run_full_stack_e2e.sh
+            # Store results to trigger failures and as artifact for debugging purposes
+            - store_test_results:
+                path: ~/repo/e2e-results/junit
+            - store_artifacts:
+                path: ~/repo/e2e-results
+            - store_artifacts:
+                path: ~/repo/e2e-logs
+    # Push docker images
+    push-docker-images:
+        <<: *default_docker
+        working_directory: ~/repo/.scripts
+        steps:
+            - checkout:
+                path: ~/repo
+            - attach_workspace:
+                at: ~/repo
+            - setup_remote_docker
+            - run:
+                name: Load cached images
+                command: ./load_cached_images.sh
+            - run:
+                name: Push flask app image
+                command: |
+                    ./push_docker_image.sh --base-image "brendalfly/hanzo_flask_app:latest" --target-image "brendalfly/hanzo_flask_app:latest"
+                    ./push_docker_image.sh --base-image "brendalfly/hanzo_flask_app:latest" --target-image "brendalfly/hanzo_flask_app:$CIRCLE_SHA1"
+            - run:
+                name: Push react app image
+                command: |
+                    ./push_docker_image.sh --base-image "brendalfly/hanzo_react_app:latest" --target-image "brendalfly/hanzo_react_app:latest"
+                    ./push_docker_image.sh --base-image "brendalfly/hanzo_react_app:latest" --target-image "brendalfly/hanzo_react_app:$CIRCLE_SHA1"
+    deploy-to-dev:
+        <<: *default_docker
+        working_directory: ~/repo/.scripts
+        steps:
+            - checkout:
+                path: ~/repo
+            - run:
+                name: Deploy to dev environment
+                command: ./deploy_to_environment.sh --environment dev --tag $CIRCLE_SHA1
+    deploy-to-uat:
+        <<: *default_docker
+        working_directory: ~/repo/.scripts
+        steps:
+            - checkout:
+                path: ~/repo
+            - run:
+                name: Deploy to UAT environment
+                command: ./deploy_to_environment.sh --environment uat --tag $CIRCLE_SHA1
+    deploy-to-staging:
+        <<: *default_docker
+        working_directory: ~/repo/.scripts
+        steps:
+            - checkout:
+                path: ~/repo
+            - run:
+                name: Deploy to staging environment
+                command: ./deploy_to_environment.sh --environment staging --tag $CIRCLE_SHA1
+    deploy-to-production:
+        <<: *default_docker
+        working_directory: ~/repo/.scripts
+        steps:
+            - checkout:
+                path: ~/repo
+            - run:
+                name: Deploy to production environment
+                command: ./deploy_to_environment.sh --environment production --tag $CIRCLE_SHA1
 #
 # Workflows
 #
 workflows:
     version: 2
-    build-test-deploy-flask-app:
+    build-test-deploy:
         jobs:
             - build-flask-app
+            - build-react-app
             - test-flask-app:
                 # Test after successful build
                 requires:
                     - build-flask-app
+            - test-react-app:
+                # Test after successful build
+                requires:
+                    - build-react-app
+            - full-e2e-tests:
+                # Full stack tests require previous jobs to have been completed
+                requires:
+                    - test-flask-app
+                    - test-react-app
+            - push-docker-images:
+                # Push docker images after e2e tests have passed and only on master
+                requires:
+                    - full-e2e-tests
+                <<: *master_only
+            # All approve and deploy steps require master build
+            - approve-dev:
+                type: approval
+                requires:
+                    - push-docker-images
+                <<: *master_only
+            - deploy-to-dev:
+                requires:
+                    - approve-dev
+                <<: *master_only
+            - approve-uat:
+                type: approval
+                requires:
+                    - deploy-to-dev
+                <<: *master_only
+            - deploy-to-uat:
+                requires:
+                    - approve-uat
+                <<: *master_only
+            - approve-staging:
+                type: approval
+                requires:
+                    - deploy-to-uat
+                <<: *master_only
+            - deploy-to-staging:
+                requires:
+                    - approve-staging
+                <<: *master_only
+            - approve-production:
+                type: approval
+                requires:
+                    - deploy-to-staging
+                <<: *master_only
+            - deploy-to-production:
+                requires:
+                    - approve-production
+                <<: *master_only
+            

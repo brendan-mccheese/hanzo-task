@@ -1,6 +1,9 @@
+# Flask API docker file
+# Uses apline as base for smallest image
 FROM python:3-alpine
-LABEL maintainer="brendancheshire@gmail.com"
+LABEL maintainer="brendan-mccheese"
 LABEL purpose="Hanzo SRE task"
+LABEL required_env_vars="[POSTGRES_CONNECTION_STRING, REDIS_HOST, REDIS_PORT]"
 
 WORKDIR /flask_app
 
