@@ -22,8 +22,6 @@ if [[ "$should_exit" -eq 1 ]]; then
     exit 1
 fi
 
-base_image=
-
 # Parse command line args
 while (( "$#" )); do
   case "$1" in
@@ -45,6 +43,16 @@ while (( "$#" )); do
       ;;
   esac
 done
+
+if [[ -z "$base_image" ]]; then
+    echo "Please specify base image!"
+    exit 1
+fi
+
+if [[ -z "$target_image" ]]; then
+    echo "Please specify target image!"
+    exit 1
+fi
 
 # Login and push image
 docker login --username $DOCKER_HUB_USER --password $DOCKER_HUB_PASSWORD
