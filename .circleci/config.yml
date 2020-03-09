@@ -164,3 +164,7 @@ workflows:
                 requires:
                     - test-flask-app
                     - test-react-app
+            - push-docker-images:
+                # Push docker images after e2e tests have passed
+                requires:
+                    - full-e2e-tests
