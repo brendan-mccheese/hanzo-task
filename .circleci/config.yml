@@ -215,4 +215,25 @@ workflows:
             - deploy-to-dev:
                 requires:
                     - approve-dev
+            - approve-uat:
+                type: approval
+                requires:
+                    - deploy-to-dev
+            - deploy-to-uat:
+                requires:
+                    - approve-uat
+            - approve-staging:
+                type: approval
+                requires:
+                    - deploy-to-uat
+            - deploy-to-staging:
+                requires:
+                    - approve-staging
+            - approve-production:
+                type: approval
+                requires:
+                    - deploy-to-staging
+            - deploy-to-production:
+                requires:
+                    - approve-production
             

@@ -3,6 +3,7 @@
 FROM python:3-alpine
 LABEL maintainer="brendan-mccheese"
 LABEL purpose="Hanzo SRE task"
+LABEL required_env_vars="[POSTGRES_CONNECTION_STRING, REDIS_HOST, REDIS_PORT]"
 
 WORKDIR /flask_app
 
