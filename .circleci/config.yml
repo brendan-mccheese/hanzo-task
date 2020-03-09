@@ -123,6 +123,25 @@ jobs:
                 path: ~/repo/e2e-results
             - store_artifacts:
                 path: ~/repo/e2e-logs
+    # Push docker images
+    push-docker-images:
+        <<: *default_docker
+        working_directory: ~/repo/.scripts
+        steps:
+            - checkout:
+                path: ~/repo
+            - attach_workspace:
+                at: ~/repo
+            - setup_remote_docker
+            - run:
+                name: Load cached images
+                command: ./load_cached_images.sh
+            - run:
+                name: Push flask app image
+                command: ./push_docker_image.sh --base-image "brendalfly/hanzo_flask_app:latest" --target-image "brendalfly/hanzo_flask_app:latest"
+            - run:
+                name: Push react app image
+                command: ./push_docker_image.sh --base-image "brendalfly/hanzo_react_app:latest" --target-image "brendalfly/hanzo_react_app:latest"
 #
 # Workflows
 #
